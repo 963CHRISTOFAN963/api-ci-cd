@@ -36,5 +36,21 @@ app.delete('/frutas/:nome', (req, res) => {
 });
 
 
+app.put('/frutas/:nome', (req, res) => {
+  const { nome } = req.params;
+  const { novoNome } = req.body;
+
+  const index = frutas.indexOf(nome);
+
+  if (index === -1) {
+    return res.status(404).json({ error: "Fruta não encontrada" });
+  }
+
+  frutas[index] = novoNome;
+
+  res.json({ message: "Fruta atualizada!", frutas });
+});
+
+
 
 module.exports = app;
