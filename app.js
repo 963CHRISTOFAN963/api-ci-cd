@@ -3,28 +3,39 @@ const app = express();
 
 app.use(express.json());
 
-let frutas = ["maçã", "banana", "laranja"];
+let frutas = [
+  { nome: "maçã", preco: 5 },
+  { nome: "banana", preco: 3 },
+  { nome: "laranja", preco: 4 }
+];
 
 app.get('/', (req, res) => {
   res.json({ message: "API funcionando 🚀" });
 });
 
-// Endpoint de frutas
+// GET todas
 app.get('/frutas', (req, res) => {
   res.json({ frutas });
 });
 
+// POST nova fruta
 app.post('/frutas', (req, res) => {
-  const { nome } = req.body;
-  if(!nome) return res.status(400).json({ error: "É necessário informar o nome da fruta" });
-  frutas.push(nome);
-  res.status(201).json({ message: `Fruta ${nome} adicionada!`, frutas });
+  const { nome, preco } = req.body;
+
+  if (!nome || preco == null) {
+    return res.status(400).json({ error: "Nome e preço são obrigatórios" });
+  }
+
+  frutas.push({ nome, preco });
+
+  res.status(201).json({ message: "Fruta adicionada!", frutas });
 });
 
+// DELETE
 app.delete('/frutas/:nome', (req, res) => {
   const { nome } = req.params;
 
-  const index = frutas.indexOf(nome);
+  const index = frutas.findIndex(f => f.nome === nome);
 
   if (index === -1) {
     return res.status(404).json({ error: "Fruta não encontrada" });
@@ -32,25 +43,44 @@ app.delete('/frutas/:nome', (req, res) => {
 
   frutas.splice(index, 1);
 
-  res.json({ message: `Fruta ${nome} removida!`, frutas });
+  res.json({ message: "Fruta removida!", frutas });
 });
 
-
+// PUT (atualiza tudo)
 app.put('/frutas/:nome', (req, res) => {
   const { nome } = req.params;
-  const { novoNome } = req.body;
+  const { novoNome, preco } = req.body;
 
-  const index = frutas.indexOf(nome);
+  const index = frutas.findIndex(f => f.nome === nome);
 
   if (index === -1) {
     return res.status(404).json({ error: "Fruta não encontrada" });
   }
 
-  frutas[index] = novoNome;
+  if (!novoNome || preco == null) {
+    return res.status(400).json({ error: "novoNome e preco são obrigatórios" });
+  }
 
-  res.json({ message: "Fruta atualizada!", frutas });
+  frutas[index] = { nome: novoNome, preco };
+
+  res.json({ message: "Fruta atualizada completamente!", frutas });
 });
 
+// PATCH (atualiza parcialmente)
+app.patch('/frutas/:nome', (req, res) => {
+  const { nome } = req.params;
+  const { novoNome, preco } = req.body;
 
+  const fruta = frutas.find(f => f.nome === nome);
+
+  if (!fruta) {
+    return res.status(404).json({ error: "Fruta não encontrada" });
+  }
+
+  if (novoNome) fruta.nome = novoNome;
+  if (preco != null) fruta.preco = preco;
+
+  res.json({ message: "Fruta atualizada parcialmente!", frutas });
+});
 
 module.exports = app;
