@@ -21,4 +21,20 @@ app.post('/frutas', (req, res) => {
   res.status(201).json({ message: `Fruta ${nome} adicionada!`, frutas });
 });
 
+app.delete('/frutas/:nome', (req, res) => {
+  const { nome } = req.params;
+
+  const index = frutas.indexOf(nome);
+
+  if (index === -1) {
+    return res.status(404).json({ error: "Fruta não encontrada" });
+  }
+
+  frutas.splice(index, 1);
+
+  res.json({ message: `Fruta ${nome} removida!`, frutas });
+});
+
+
+
 module.exports = app;
