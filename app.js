@@ -13,9 +13,21 @@ app.get('/', (req, res) => {
   res.json({ message: "API funcionando 🚀" });
 });
 
-// GET todas
+// GET todas as frutas
 app.get('/frutas', (req, res) => {
   res.json({ frutas });
+});
+
+// GET fruta pelo nome (importante para HEAD funcionar)
+app.get('/frutas/:nome', (req, res) => {
+  const { nome } = req.params;
+  const fruta = frutas.find(f => f.nome.toLowerCase() === nome.toLowerCase());
+
+  if (!fruta) {
+    return res.status(404).json({ error: "Fruta não encontrada" });
+  }
+
+  res.json(fruta);
 });
 
 // POST nova fruta
@@ -31,11 +43,11 @@ app.post('/frutas', (req, res) => {
   res.status(201).json({ message: "Fruta adicionada!", frutas });
 });
 
-// DELETE
+// DELETE fruta pelo nome
 app.delete('/frutas/:nome', (req, res) => {
   const { nome } = req.params;
 
-  const index = frutas.findIndex(f => f.nome === nome);
+  const index = frutas.findIndex(f => f.nome.toLowerCase() === nome.toLowerCase());
 
   if (index === -1) {
     return res.status(404).json({ error: "Fruta não encontrada" });
@@ -51,7 +63,7 @@ app.put('/frutas/:nome', (req, res) => {
   const { nome } = req.params;
   const { novoNome, preco } = req.body;
 
-  const index = frutas.findIndex(f => f.nome === nome);
+  const index = frutas.findIndex(f => f.nome.toLowerCase() === nome.toLowerCase());
 
   if (index === -1) {
     return res.status(404).json({ error: "Fruta não encontrada" });
@@ -71,7 +83,7 @@ app.patch('/frutas/:nome', (req, res) => {
   const { nome } = req.params;
   const { novoNome, preco } = req.body;
 
-  const fruta = frutas.find(f => f.nome === nome);
+  const fruta = frutas.find(f => f.nome.toLowerCase() === nome.toLowerCase());
 
   if (!fruta) {
     return res.status(404).json({ error: "Fruta não encontrada" });
